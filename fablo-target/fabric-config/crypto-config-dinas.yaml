@@ -1,0 +1,8 @@
+PeerOrgs:
+  - Name: Dinas
+    Domain: dinas.palmmapping.co.id
+    Specs:
+    Template:
+      Count: 2
+    Users:
+      Count: 1

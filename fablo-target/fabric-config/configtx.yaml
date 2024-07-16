@@ -1,0 +1,195 @@
+################################################################################
+#   SECTION: Capabilities
+################################################################################
+Capabilities:
+    Channel: &ChannelCapabilities
+        V2_0: true
+    Orderer: &OrdererCapabilities
+        V2_0: true
+    Application: &ApplicationCapabilities
+        V2_0: true
+
+################################################################################
+#   CHANNEL Defaults
+################################################################################
+Channel: &ChannelDefaults
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+    Capabilities:
+        <<: *ChannelCapabilities
+
+################################################################################
+#   Section: Organizations
+################################################################################
+Organizations:
+    - &PalmMappingOrderer
+      Name: PalmMappingOrdererMSP
+      ID: PalmMappingOrdererMSP
+      MSPDir: crypto-config/peerOrganizations/orderer.palmmapping.co.id/msp
+
+      Policies:
+          Readers:
+              Type: Signature
+              Rule: "OR('PalmMappingOrdererMSP.member')"
+          Writers:
+              Type: Signature
+              Rule: "OR('PalmMappingOrdererMSP.member')"
+          Admins:
+              Type: Signature
+              Rule: "OR('PalmMappingOrdererMSP.admin')"
+          Endorsement:
+              Type: Signature
+              Rule: "OR('PalmMappingOrdererMSP.member')"
+
+      AnchorPeers:
+
+    - &Dinas
+      Name: DinasMSP
+      ID: DinasMSP
+      MSPDir: crypto-config/peerOrganizations/dinas.palmmapping.co.id/msp
+
+      Policies:
+          Readers:
+              Type: Signature
+              Rule: "OR('DinasMSP.member')"
+          Writers:
+              Type: Signature
+              Rule: "OR('DinasMSP.member')"
+          Admins:
+              Type: Signature
+              Rule: "OR('DinasMSP.admin')"
+          Endorsement:
+              Type: Signature
+              Rule: "OR('DinasMSP.member')"
+
+      AnchorPeers:
+          - Host: peer0.dinas.palmmapping.co.id
+            Port: 7041
+
+          - Host: peer1.dinas.palmmapping.co.id
+            Port: 7042
+
+################################################################################
+#   SECTION: Application
+################################################################################
+Application: &ApplicationDefaults
+    Organizations:
+    # Policies defines the set of policies at this level of the config tree
+    # For Application policies, their canonical path is
+    #   /Channel/Application/<PolicyName>
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        Endorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Endorsement"
+    Capabilities:
+        <<: *ApplicationCapabilities
+
+################################################################################
+#   SECTION: Orderer
+################################################################################
+Orderer: &Palmmapping-orderer-groupDefaults
+    OrdererType: etcdraft
+    Addresses:
+        - orderer0.palmmapping-orderer-group.orderer.palmmapping.co.id:7030
+        - orderer1.palmmapping-orderer-group.orderer.palmmapping.co.id:7031
+        - orderer2.palmmapping-orderer-group.orderer.palmmapping.co.id:7032
+    EtcdRaft:
+        Consenters:
+            - Host: orderer0.palmmapping-orderer-group.orderer.palmmapping.co.id
+              Port: 7030
+              ClientTLSCert: crypto-config/peerOrganizations/orderer.palmmapping.co.id/peers/orderer0.palmmapping-orderer-group.orderer.palmmapping.co.id/tls/server.crt
+              ServerTLSCert: crypto-config/peerOrganizations/orderer.palmmapping.co.id/peers/orderer0.palmmapping-orderer-group.orderer.palmmapping.co.id/tls/server.crt
+
+            - Host: orderer1.palmmapping-orderer-group.orderer.palmmapping.co.id
+              Port: 7031
+              ClientTLSCert: crypto-config/peerOrganizations/orderer.palmmapping.co.id/peers/orderer1.palmmapping-orderer-group.orderer.palmmapping.co.id/tls/server.crt
+              ServerTLSCert: crypto-config/peerOrganizations/orderer.palmmapping.co.id/peers/orderer1.palmmapping-orderer-group.orderer.palmmapping.co.id/tls/server.crt
+
+            - Host: orderer2.palmmapping-orderer-group.orderer.palmmapping.co.id
+              Port: 7032
+              ClientTLSCert: crypto-config/peerOrganizations/orderer.palmmapping.co.id/peers/orderer2.palmmapping-orderer-group.orderer.palmmapping.co.id/tls/server.crt
+              ServerTLSCert: crypto-config/peerOrganizations/orderer.palmmapping.co.id/peers/orderer2.palmmapping-orderer-group.orderer.palmmapping.co.id/tls/server.crt
+
+    BatchTimeout: 2s
+    BatchSize:
+        MaxMessageCount: 10
+        AbsoluteMaxBytes: 99 MB
+        PreferredMaxBytes: 512 KB
+    Organizations:
+    # Policies defines the set of policies at this level of the config tree
+    # For Orderer policies, their canonical path is
+    #   /Channel/Orderer/<PolicyName>
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        # BlockValidation specifies what signatures must be included in the block
+        # from the orderer for the peer to validate it.
+        BlockValidation:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+    Capabilities:
+        <<: *OrdererCapabilities
+
+################################################################################
+#   Profile
+################################################################################
+# https://github:com/hyperledger/fabric/blob/master/sampleconfig/configtx.yaml
+
+Profiles:
+    # Profile used to create Genesis block for group palmmapping-orderer-group #
+    Palmmapping-orderer-groupGenesis:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *Palmmapping-orderer-groupDefaults
+            Organizations:
+                - *PalmMappingOrderer
+            Capabilities:
+                <<: *OrdererCapabilities
+        Consortiums:
+            SampleConsortium:
+                Organizations:
+                    - *PalmMappingOrderer
+                    - *Dinas
+
+    # Profile used to create channeltx for pemetaan-hutan-channel #
+    PemetaanHutanChannel:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *Palmmapping-orderer-groupDefaults
+            Organizations:
+                - *PalmMappingOrderer
+            Capabilities:
+                <<: *ApplicationCapabilities
+        Consortium: SampleConsortium
+        Consortiums:
+            SampleConsortium:
+                Organizations:
+                    - *Dinas
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *Dinas

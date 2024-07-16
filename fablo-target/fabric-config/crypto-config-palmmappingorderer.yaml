@@ -1,0 +1,11 @@
+PeerOrgs:
+  - Name: PalmMappingOrderer
+    Domain: orderer.palmmapping.co.id
+    Specs:
+      - Hostname: orderer0.palmmapping-orderer-group
+      - Hostname: orderer1.palmmapping-orderer-group
+      - Hostname: orderer2.palmmapping-orderer-group
+    Template:
+      Count: 0
+    Users:
+      Count: 1

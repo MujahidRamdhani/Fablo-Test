@@ -1,0 +1,59 @@
+{
+  "$schema": "https://github.com/hyperledger-labs/fablo/releases/download/1.2.0/schema.json",
+  "global": {
+    "fabricVersion": "2.5.3",
+    "tls": true,
+    "peerDevMode": false,
+    "tools": {
+      "explorer": true
+    }
+  },
+  "orgs": [
+    {
+      "organization": {
+        "name": "PalmMappingOrderer",
+        "domain": "orderer.palmmapping.co.id"
+      },
+      "orderers": [
+        {
+          "groupName": "palmmapping-orderer-group",
+          "type": "raft",
+          "instances": 3
+        }
+      ]
+    },
+    {
+      "organization": {
+        "name": "Dinas",
+        "domain": "dinas.palmmapping.co.id"
+      },
+      "peer": {
+        "instances": 2,
+        "db": "CouchDb"
+      }
+    }
+  ],
+  "channels": [
+    {
+      "name": "pemetaan-hutan-channel",
+      "orgs": [
+        {
+          "name": "Dinas",
+          "peers": [
+            "peer0",
+            "peer1"
+          ]
+        }
+      ]
+    }
+  ],
+  "chaincodes": [
+    {
+      "name": "pemetaan-hutan-chaincode",
+      "version": "1.0.0",
+      "lang": "node",
+      "channel": "pemetaan-hutan-channel",
+      "directory": "./chaincodes/pemetaan-hutan-chaincode"
+    }
+  ]
+}

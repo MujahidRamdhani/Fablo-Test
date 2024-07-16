@@ -1,0 +1,9 @@
+{
+  "network-configs": {
+    "network-dinas": {
+      "name": "Network of Dinas",
+      "profile": "/opt/explorer/app/platform/fabric/connection-profile/connection-profile-dinas.json"
+    }
+  },
+  "license": "Apache-2.0"
+}
